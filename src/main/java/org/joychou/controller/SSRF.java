@@ -10,6 +10,9 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.joychou.nonce.Passthrough1;
+import org.joychou.nonce.Passthrough2;
+import org.joychou.nonce.Sink;
 import org.joychou.security.SecurityUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,23 +44,50 @@ public class SSRF {
     {
         try {
             String url = request.getParameter("url");
-            URL u = new URL(url);
-            URLConnection urlConnection = u.openConnection();
-            BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream())); //send request
-            String inputLine;
-            StringBuffer html = new StringBuffer();
-
-            while ((inputLine = in.readLine()) != null) {
-                html.append(inputLine);
-            }
-            in.close();
-            return html.toString();
+            url= Passthrough1.url(url);
+            int a=1;
+            int b=2;
+            URL u=new Passthrough2().pass2(url);
+            int c=3+a
+                    +b;
+            return Sink.sink(u);
         }catch(Exception e) {
             e.printStackTrace();
             return "fail";
         }
     }
 
+    @RequestMapping("/urlConnection2")
+    @ResponseBody
+    public static String ssrf_URLConnection2(HttpServletRequest request)
+    {
+        try {
+            String url = request.getParameter("url");
+            url= Passthrough1.url(url);
+            int a=1;
+            int b=2;
+            URL u=new Passthrough2().pass2(url);
+            int c=3+a
+                    +b;
+            return Sink.sink(u);
+        }catch(Exception e) {
+            e.printStackTrace();
+            return "fail";
+        }
+    }
+
+    @RequestMapping("/url2")
+    @ResponseBody
+    public static String ssrf_2(HttpServletRequest request)
+    {
+        try {
+            String url = request.getParameter("url");
+            return Sink.sink(new URL(url));
+        }catch(Exception e) {
+            e.printStackTrace();
+            return "fail";
+        }
+    }
 
     @RequestMapping("/HttpURLConnection")
     @ResponseBody
